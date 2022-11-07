@@ -7,10 +7,13 @@
   <maintainer email="you@example.com">yvxaiver</maintainer>
   <license>TODO: License declaration</license>
 
-  <test_depend>ament_copyright</test_depend>
-  <test_depend>ament_flake8</test_depend>
-  <test_depend>ament_pep257</test_depend>
-  <test_depend>python3-pytest</test_depend>
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>geometry_msgs</depend>
+  <depend>points_vector</depend>
+  <depend>lanenet_out</depend>
+  <depend>ros2_numpy</depend>
 
   <export>
     <build_type>ament_python</build_type>
