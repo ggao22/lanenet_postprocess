@@ -2,6 +2,10 @@
 import sys
 import time
 
+import sklearn 
+import cv2
+import matplotlib.pyplot as plt
+
 import rclpy
 from rclpy.node import Node
 
@@ -49,6 +53,8 @@ class SegmentationPostProcessor(Node):
         self.full_lanepts, self.centerpts, self.following_path = self.get_lane_outputs(binary_seg_image, instance_seg_image, image_vis)
         msg = self.get_ordered_pv_msg(data.order)
         if msg: self.publisher_.publish(msg)
+
+        self.image_display(image_vis)
 
     
     def get_lane_outputs(self, binary_seg_image, instance_seg_image, image_vis):
@@ -100,7 +106,7 @@ class SegmentationPostProcessor(Node):
         T_post_process = time.time()
         print('Image Post-Process cost time: {:.5f}s'.format(T_post_process-T_start))
 
-        if centerpts: return full_lane_pts, centerpts, self.following_path
+        if centerpts: return full_lane_pts, centerpts, following_path
         return None, None, None
 
 
@@ -119,6 +125,25 @@ class SegmentationPostProcessor(Node):
             ptv.x_coeff = float(self.lane_processor.get_wp_to_m_coeff()[0])
             return ptv
         return None
+
+    def image_display(self, cv_frame):
+        if self.full_lanepts:
+                for lane in self.full_lanepts:
+                    for pt in lane:
+                        cv2.circle(cv_frame,tuple(([0,self.image_height] - pt)*[-1,1]), 5, (0, 255, 0), -1)
+        if self.centerpts:
+            for centerlane in self.centerpts:
+                for i in range(len(centerlane[0])):
+                    cv2.circle(cv_frame,(int(centerlane[0][i]),
+                                        self.image_height-int(centerlane[1][i])), 5, (0, 0, 255), -1)
+        if self.following_path:
+            plt.close()
+            plt.plot(self.following_path[0], self.following_path[1], ".r", label="path")
+            plt.grid(True)
+            #plt.show()
+        
+        cv2.imshow("camera", cv_frame)
+        cv2.waitKey(1)
 
 
 def main(args=None):
